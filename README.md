@@ -36,9 +36,7 @@ In the kalisio directory ( ex: C:\workspace\kalisio)
 git clone https://github.com/calysteau/krawler-job02
 cd krawler-job02
 yarn install
-yarn link @kalisio/krawler 
 ```
-*(nb : optional in this case, used if you need to create your own hooks)*
 
 Run the job
 ```bash
