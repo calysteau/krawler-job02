@@ -1,4 +1,3 @@
-import { hooks } from '@kalisio/krawler'
 import path from 'path'
 import { fileURLToPath } from 'url'
 
@@ -25,26 +24,30 @@ export default {
     tasks: {
       after: {
         readJson: {
-          match: { id: 'departements.geojson' },
+          match: { id: 'departements.json' },
           features: true
         },
         readCSV: {
           match: { id: 'population.csv' },
           headers: true, delimiter: ';' // Default delimiter is ,
-        }
+        },
+        writeJson: { store: 'fs' }
       }
     },
     jobs: {
       before: {
-	  createStores: [
+      createStores: [
           { id: 'memory' }, // Input store
           { id: 'fs', type: 'fs', options: { path: __dirname } } // Output store
         ]
       },
       after: {
+        // Add population to departement features
+        // Order is important here as the merge will keep first matching item so that we reorder to ensure department features first
         mergeJson: {
-          deep: true, // Add population to departement features
-          by: (item) => item.Code || item.properties.code,
+          deep: true,
+          sortBy: (item) => item.properties ? Number(item.properties.code) : 999,
+          mergeBy: (item) => item.Code || item.properties.code,
           transform: { mapping: { Ensemble: 'population' }, unitMapping: { population: { asNumber: true } }, pick: ['population'] }
         },
         convertToGeoJson: {},
